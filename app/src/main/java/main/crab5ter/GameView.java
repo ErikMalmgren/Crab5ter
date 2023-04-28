@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -12,7 +13,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private float ballX, ballY; // current position of the ball
     private float ballSize; // size of the ball
     private Paint ballPaint;
-    private boolean gameOver;
+    private Paint wallTest;
+    //private boolean gameOver;
 
     private GameThread thread;
 
@@ -37,15 +39,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         getHolder().addCallback(this);
         ballPaint = new Paint();
         ballPaint.setColor(Color.BLUE);
-        ballSize = 50;
-        gameOver = false;
+        wallTest = new Paint();
+        wallTest.setColor(Color.BLACK);
+        ballSize = 20;
+       // gameOver = false;
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         // initialize game state
-        ballX = getWidth() / 2;
-        ballY = getHeight() / 2;
+        ballX = getWidth() / 2f;
+        ballY = getHeight() / 2f;
         ballSpeedX = 0;
         ballSpeedY = 0;
 
@@ -65,6 +69,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 thread.join();
                 retry = false;
             } catch (InterruptedException e) {
+                Log.d("Error", e.getMessage());
             }
         }
     }
@@ -111,13 +116,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         super.draw(canvas);
         canvas.drawColor(Color.WHITE);
         canvas.drawCircle(ballX, ballY, ballSize, ballPaint);
-        if (gameOver) {
+        canvas.drawRect(getWidth()/4f,getHeight()/4f,getWidth()*3/4f,(getHeight()/4f)+20,wallTest);
+/*        if (gameOver) {
             Paint textPaint = new Paint();
             textPaint.setColor(Color.RED);
             textPaint.setTextSize(100);
             String gameOverText = "GAME OVER";
             canvas.drawText(gameOverText, getWidth() / 2 - textPaint.measureText(gameOverText) / 2, getHeight() / 2, textPaint);
-        }
+        }*/
     }
 
     public void pause() {
