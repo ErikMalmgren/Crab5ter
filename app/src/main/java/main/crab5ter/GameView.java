@@ -102,6 +102,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 ballY = getHeight() - ballSize;
             }
         }
+        if(ballX-ballSize > getHeight()/4f && ballX-ballSize < (getHeight()/4f)+20){
+            ballSpeedX = -ballSpeedX * 0.3f;
+            if(ballX-ballSize < (getHeight()/4f)+20 && ballX-ballSize > (getHeight()/4f)+10){
+                ballX = ballSize + (getHeight()/4f)+20;
+            }else if(ballX+ballSize > getHeight()/4f && ballX+ballSize < (getHeight()/4f)+10){
+                ballX = getHeight()/4f - ballSize;
+            }
+        }
 
         ballX += ballSpeedX;
         ballY += ballSpeedY;
