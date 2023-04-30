@@ -102,12 +102,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 ballY = getHeight() - ballSize;
             }
         }
-        if(ballX-ballSize > getHeight()/4f && ballX-ballSize < (getHeight()/4f)+20){
-            ballSpeedX = -ballSpeedX * 0.3f;
-            if(ballX-ballSize < (getHeight()/4f)+20 && ballX-ballSize > (getHeight()/4f)+10){
-                ballX = ballSize + (getHeight()/4f)+20;
-            }else if(ballX+ballSize > getHeight()/4f && ballX+ballSize < (getHeight()/4f)+10){
-                ballX = getHeight()/4f - ballSize;
+        if(ballY+ballSize > getHeight()/4f && ballY-ballSize < (getHeight()/4f)+100 && ballX+ballSize > getWidth()/4f && ballX-ballSize < getWidth()*3/4f){
+            ballSpeedY = -ballSpeedY*0.3f;
+            ballSpeedX = -ballSpeedX*0.3f;
+
+            if(ballY-ballSize > (getHeight()/4f)+50 && ballY-ballSize < (getHeight()/4f)+100){
+                ballY = (getHeight()/4f)+100 +ballSize;
+            }else{
+                ballY = getHeight()/4f - ballSize;
+            }
+
+            if(ballX-ballSize > getWidth()/4f){
+
             }
         }
 
@@ -124,7 +130,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         super.draw(canvas);
         canvas.drawColor(Color.WHITE);
         canvas.drawCircle(ballX, ballY, ballSize, ballPaint);
-        canvas.drawRect(getWidth()/4f,getHeight()/4f,getWidth()*3/4f,(getHeight()/4f)+20,wallTest);
+        canvas.drawRect(getWidth()/4f,getHeight()/4f,getWidth()*3/4f,(getHeight()/4f)+100,wallTest);
+        Paint textPaint = new Paint();
+        textPaint.setColor(Color.RED);
+        textPaint.setTextSize(100);
+        String gameOverText = Math.floor(ballX-ballSize) + " " + getWidth()/4f + " " + getWidth()*3/4f;
+        canvas.drawText(gameOverText, getWidth() / 2 - textPaint.measureText(gameOverText) / 2, getHeight() / 2, textPaint);
 /*        if (gameOver) {
             Paint textPaint = new Paint();
             textPaint.setColor(Color.RED);
