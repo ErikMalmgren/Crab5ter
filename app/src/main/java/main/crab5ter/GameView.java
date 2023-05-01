@@ -8,18 +8,14 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
-    private float ballX, ballY; // current position of the ball
-    private float ballSize; // size of the ball
-    private Paint ballPaint;
-    private Paint wallTest;
-    //private boolean gameOver;
-
+    private float playerX, playerY; // current position of the player
+    private float playerRadius; // size of the player
+    private Paint playerPaint;
+    private Wall wall1,wall2;
     private GameThread thread;
-
-    private float ballSpeedX, ballSpeedY; // current speed of the ball
-
+    private float playerSpeedX, playerSpeedY; // current speed of the player
+    
     public GameView(Context context) {
         super(context);
         init();
@@ -37,21 +33,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private void init() {
         getHolder().addCallback(this);
-        ballPaint = new Paint();
-        ballPaint.setColor(Color.BLUE);
-        wallTest = new Paint();
-        wallTest.setColor(Color.BLACK);
-        ballSize = 20;
-       // gameOver = false;
+        playerPaint = new Paint();
+        playerPaint.setColor(Color.BLUE);
+        playerRadius = 50;
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        // initialize game state
-        ballX = getWidth() / 2f;
-        ballY = getHeight() / 2f;
-        ballSpeedX = 0;
-        ballSpeedY = 0;
+        playerX = getWidth()/2f;
+        playerY = getHeight()/2f;
+        playerSpeedX = 0;
+        playerSpeedY = 0;
+        wall1 = new Wall(getWidth()/4f,getHeight()/4f -100,getWidth()/2f, 100,new Paint(), Color.GREEN);
+        wall2 = new Wall(getWidth()/4f -100,getHeight()/4f,100, getHeight()/2f,new Paint(), Color.YELLOW);
 
         // start the game thread
         thread = new GameThread(getHolder(), this);
@@ -79,55 +73,69 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void updatePosition(double ax, double ay) {
-        // update ball speed based on accelerometer sensor values
-        ballSpeedX += -ax/5 * 0.95f;
-        ballSpeedY += ay/5  * 0.95f;
+        // update player speed based on accelerometer sensor values
+        playerSpeedX += -ax/10 * 0.95f;
+        playerSpeedY += ay/10  * 0.95f;
     }
 
     public void update() {
         // check for collisions with screen edges
-        if (ballX - ballSize < 0 || ballX + ballSize > getWidth()) {
-            ballSpeedX = -ballSpeedX * 0.3f; // reverse speed and apply friction
-            if (ballX - ballSize < 0) {
-                ballX = ballSize;
+        if (playerX - playerRadius < 0 || playerX + playerRadius > getWidth()) {
+            playerSpeedX = -playerSpeedX * 0.50f; // reverse speed and apply friction
+            if (playerX - playerRadius < 0) {
+                playerX = playerRadius;
             } else {
-                ballX = getWidth() - ballSize;
+                playerX = getWidth() - playerRadius;
             }
         }
-        if (ballY - ballSize < 0 || ballY + ballSize > getHeight()) {
-            ballSpeedY = -ballSpeedY * 0.3f; // reverse speed and apply friction
-            if (ballY - ballSize < 0) {
-                ballY = ballSize;
+        if (playerY - playerRadius < 0 || playerY + playerRadius > getHeight()) {
+            playerSpeedY = -playerSpeedY * 0.50f; // reverse speed and apply friction
+            if (playerY - playerRadius < 0) {
+                playerY = playerRadius;
             } else {
-                ballY = getHeight() - ballSize;
+                playerY = getHeight() - playerRadius;
             }
         }
-        if(ballX-ballSize > getHeight()/4f && ballX-ballSize < (getHeight()/4f)+20){
-            ballSpeedX = -ballSpeedX * 0.3f;
+        handleWallCollision(wall1);
+        handleWallCollision(wall2);
+        playerX += playerSpeedX;
+        playerY += playerSpeedY;
 
+    }
+
+    private void handleWallCollision(Wall wall){
+        double distanceToWall = getDistance(wall.clampX(playerX),wall.clampY(playerY), playerX,playerY);
+        if( distanceToWall < playerRadius){
+            double angle = Math.atan2(playerX- wall.clampX(playerX),playerY-wall.clampY(playerY));
+            playerX = (float)(wall.clampX(playerX) + (playerRadius*Math.sin(angle)));
+            playerY = (float)(wall.clampY(playerY) + (playerRadius*Math.cos(angle)));
+            if(Math.round(Math.cos(angle)) != 0)playerSpeedY = Math.abs(playerSpeedY) * Math.round(Math.cos(angle)) * 0.50f;
+            if(Math.round(Math.sin(angle)) != 0)playerSpeedX = Math.abs(playerSpeedX) * Math.round(Math.sin(angle)) * 0.50f;
         }
+    }
 
-        ballX += ballSpeedX;
-        ballY += ballSpeedY;
-
-        // check if ball is out of bounds
-        //if (ballX < ballSize || ballX > getWidth() - ballSize || ballY < ballSize || ballY > getHeight() - ballSize) {
-        //    gameOver = true;
-        //}
+    private double getDistance(float x1,float y1, float x2, float y2){
+        return Math.sqrt(Math.pow((x1-x2),2) + Math.pow((y1-y2),2));
     }
 
     public void draw(Canvas canvas) {
         super.draw(canvas);
         canvas.drawColor(Color.WHITE);
-        canvas.drawCircle(ballX, ballY, ballSize, ballPaint);
-        canvas.drawRect(getWidth()/4f,getHeight()/4f,getWidth()*3/4f,(getHeight()/4f)+20,wallTest);
-/*        if (gameOver) {
-            Paint textPaint = new Paint();
-            textPaint.setColor(Color.RED);
-            textPaint.setTextSize(100);
-            String gameOverText = "GAME OVER";
-            canvas.drawText(gameOverText, getWidth() / 2 - textPaint.measureText(gameOverText) / 2, getHeight() / 2, textPaint);
-        }*/
+        canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
+        canvas.drawRect(wall1.left(),wall1.top(),wall1.right(),wall1.bottom(),wall1.getPaint());
+        canvas.drawRect(wall2.left(),wall2.top(),wall2.right(),wall2.bottom(),wall2.getPaint());
+
+/*        Paint clampLine = new Paint();
+        clampLine.setColor(Color.RED);
+        double angle = Math.atan2(playerX- wall.clampX(playerX),playerY-wall.clampY(playerY));
+        canvas.drawCircle((float) (wall.clampX(playerX) + (playerRadius*Math.sin(angle))), (float) (wall.clampY(playerY) + (playerRadius*Math.cos(angle))),10,clampLine);*/
+
+/*        Paint textPaint = new Paint();
+        textPaint.setColor(Color.RED);
+        textPaint.setTextSize(100);
+        DecimalFormat df = new DecimalFormat("#.####");
+        String testText = df.format(Math.sin(angle)) + " " + df.format(Math.cos(angle));
+        canvas.drawText(testText, getWidth()/2f - textPaint.measureText(testText)/2, getHeight()/2f, textPaint);*/
     }
 
     public void pause() {
