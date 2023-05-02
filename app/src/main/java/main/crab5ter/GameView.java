@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -13,8 +14,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private float playerRadius; // size of the player
     private Paint playerPaint;
     private Wall wall1,wall2;
+    private Paint hole;
     private GameThread thread;
-    private float playerSpeedX, playerSpeedY; // current speed of the player
+    private float playerSpeedX, playerSpeedY;
+    private Vibrator vibrator;
     
     public GameView(Context context) {
         super(context);
@@ -36,14 +39,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         playerPaint = new Paint();
         playerPaint.setColor(Color.BLUE);
         playerRadius = 50;
+        hole = new Paint();
+        hole.setColor(Color.BLACK);
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        playerX = getWidth()/2f;
-        playerY = getHeight()/2f;
-        playerSpeedX = 0;
-        playerSpeedY = 0;
+        respwanPlayer();
         wall1 = new Wall(getWidth()/4f,getHeight()/4f -100,getWidth()/2f, 100,new Paint(), Color.GREEN);
         wall2 = new Wall(getWidth()/4f -100,getHeight()/4f,100, getHeight()/2f,new Paint(), Color.YELLOW);
 
@@ -74,12 +76,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     public void updatePosition(double ax, double ay) {
         // update player speed based on accelerometer sensor values
+
         playerSpeedX += -ax/10 * 0.95f;
         playerSpeedY += ay/10  * 0.95f;
     }
 
-    public void update() {
-        // check for collisions with screen edges
+    public void setVibrator(Vibrator vibrator){
+        this.vibrator =  vibrator;
+    }
+
+    private void handleScreenEdgeCollision(){
         if (playerX - playerRadius < 0 || playerX + playerRadius > getWidth()) {
             playerSpeedX = -playerSpeedX * 0.50f; // reverse speed and apply friction
             if (playerX - playerRadius < 0) {
@@ -96,11 +102,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 playerY = getHeight() - playerRadius;
             }
         }
-        handleWallCollision(wall1);
-        handleWallCollision(wall2);
-        playerX += playerSpeedX;
-        playerY += playerSpeedY;
-
     }
 
     private void handleWallCollision(Wall wall){
@@ -111,19 +112,40 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             playerY = (float)(wall.clampY(playerY) + (playerRadius*Math.cos(angle)));
             if(Math.round(Math.cos(angle)) != 0)playerSpeedY = Math.abs(playerSpeedY) * Math.round(Math.cos(angle)) * 0.50f;
             if(Math.round(Math.sin(angle)) != 0)playerSpeedX = Math.abs(playerSpeedX) * Math.round(Math.sin(angle)) * 0.50f;
+            vibrator.vibrate(100);
         }
+    }
+
+    public void update() {
+        handleScreenEdgeCollision();
+        handleWallCollision(wall1);
+        handleWallCollision(wall2);
+        if(getDistance(getWidth()*3f/4f,getHeight()*3f/4f,playerX,playerY) < 100){
+            respwanPlayer();
+        }
+        playerX += playerSpeedX;
+        playerY += playerSpeedY;
+
     }
 
     private double getDistance(float x1,float y1, float x2, float y2){
         return Math.sqrt(Math.pow((x1-x2),2) + Math.pow((y1-y2),2));
     }
 
+    private void respwanPlayer(){
+        playerX = getWidth()/2f;
+        playerY = getHeight()/2f;
+        playerSpeedX = 0;
+        playerSpeedY = 0;
+    }
+
     public void draw(Canvas canvas) {
         super.draw(canvas);
         canvas.drawColor(Color.WHITE);
-        canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
         canvas.drawRect(wall1.left(),wall1.top(),wall1.right(),wall1.bottom(),wall1.getPaint());
         canvas.drawRect(wall2.left(),wall2.top(),wall2.right(),wall2.bottom(),wall2.getPaint());
+        canvas.drawCircle(getWidth()*3f/4f,getHeight()*3f/4f, 100, hole);
+        canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
 
 /*        Paint clampLine = new Paint();
         clampLine.setColor(Color.RED);
