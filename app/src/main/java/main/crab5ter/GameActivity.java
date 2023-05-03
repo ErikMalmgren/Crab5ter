@@ -16,6 +16,7 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -39,8 +40,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private int[][] maze, oldMaze;
     private long lastUpdate;
 
-    //private int cellSize = 100;
-    
     public GameActivity() {
 
     }
@@ -48,6 +47,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_game);
 
         gameView = findViewById(R.id.gameView);
@@ -182,12 +182,19 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private void handleWallCollision(Wall wall){
         double distanceToWall = getDistance(wall.clampX(playerX),wall.clampY(playerY), playerX,playerY);
         if( distanceToWall < playerRadius){
+
+            //beräkna den vinkeln som spelaren kommer in med mot väggen.
             double angle = Math.atan2(playerX- wall.clampX(playerX),playerY-wall.clampY(playerY));
+
+            //Flytta ut spelaren ur väggen.
             playerX = (float)(wall.clampX(playerX) + (playerRadius*Math.sin(angle)));
             playerY = (float)(wall.clampY(playerY) + (playerRadius*Math.cos(angle)));
+
+            //Ändra hastigheten så att spelaren studsar av väggen.
             if(Math.round(Math.cos(angle)) != 0)playerSpeedY = Math.abs(playerSpeedY) * Math.round(Math.cos(angle)) * 0.50f;
             if(Math.round(Math.sin(angle)) != 0)playerSpeedX = Math.abs(playerSpeedX) * Math.round(Math.sin(angle)) * 0.50f;
-            vibrator.vibrate(100);
+
+            if((playerRadius - distanceToWall) > 2)vibrator.vibrate(100);
         }
     }
 
