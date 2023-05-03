@@ -1,18 +1,28 @@
 package main.crab5ter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
 import android.os.Vibrator;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
 
-public class GameView extends SurfaceView implements SurfaceHolder.Callback {
+public class GameActivity extends Activity implements SurfaceHolder.Callback, SensorEventListener {
+    SurfaceView gameView;
+    SurfaceHolder surfaceHolder;
+    SensorManager sensorManager;
+    Sensor accelerometer;
+    Vibrator vibrator;
     private float playerX, playerY; // current position of the player
     private float playerRadius; // size of the player
     private Paint playerPaint;
@@ -21,29 +31,33 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private GameThread thread;
     private float playerSpeedX, playerSpeedY;
     private float startX,startY; //start position for player.
-    private Vibrator vibrator;
 
     private int[][] maze;
 
     //private int cellSize = 100;
     
-    public GameView(Context context) {
-        super(context);
-        init();
+    public GameActivity() {
+
     }
 
-    public GameView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_game);
 
-    public GameView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        gameView = findViewById(R.id.gameView);
+        surfaceHolder = gameView.getHolder();
+        surfaceHolder.addCallback(this);
+
+        // Set up sensor manager and accelerometer
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
         init();
     }
 
     private void init() {
-        getHolder().addCallback(this);
         playerPaint = new Paint();
         playerPaint.setColor(Color.BLUE);
         holes = new ArrayList<Hole>();
@@ -77,27 +91,27 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder holder) {
         for(int i = 0; i < maze.length;i++){
             for(int j = 0; j < maze[0].length;j++){
-                if(maze[i][j] == 1) {//1 = väg
-                    float wallX = (j/ (float)maze[0].length) * getWidth();
-                    float wallY = (i/ (float)maze.length) * getHeight();
-                    float width = getWidth() / (float)maze[0].length;
-                    float height = getHeight() / (float)maze.length;
+                if(maze[i][j] == 1) { //1 = vägg
+                    float wallX = (j/ (float)maze[0].length) * gameView.getWidth();
+                    float wallY = (i/ (float)maze.length) * gameView.getHeight();
+                    float width = gameView.getWidth() / (float)maze[0].length;
+                    float height = gameView.getHeight() / (float)maze.length;
                     walls.add(new Wall(wallX, wallY, width, height, new Paint(), Color.GREEN));
-                }else if (maze[i][j] == -1){//-1 = hål
-                    float radius = Math.min(getWidth() / (float)maze[0].length,getHeight() / (float)maze.length)/2;
-                    float holeX = (j/ (float)maze[0].length) * getWidth() + (getWidth() / (float)maze[0].length)/2;
-                    float holeY = (i/ (float)maze.length) * getHeight() + (getHeight() / (float)maze.length)/2;
+                } else if (maze[i][j] == -1) { //-1 = hål
+                    float radius = Math.min(gameView.getWidth() / (float)maze[0].length,gameView.getHeight() / (float)maze.length)/2;
+                    float holeX = (j/ (float)maze[0].length) * gameView.getWidth() + (gameView.getWidth() / (float)maze[0].length)/2;
+                    float holeY = (i/ (float)maze.length) * gameView.getHeight() + (gameView.getHeight() / (float)maze.length)/2;
                     holes.add(new Hole(holeX,holeY,radius,new Paint(), Color.BLACK));
                 }else if (maze[i][j] == 2){// 2 = startPosition.
-                    playerRadius = Math.min(getWidth() / (float)maze[0].length,getHeight() / (float)maze.length)/2.5f;
-                    startX= (j/ (float)maze[0].length) * getWidth() + (getWidth() / (float)maze[0].length)/2;
-                    startY = (i/ (float)maze.length) * getHeight() + (getHeight() / (float)maze.length)/2;
+                    playerRadius = Math.min(gameView.getWidth() / (float)maze[0].length,gameView.getHeight() / (float)maze.length)/2.5f;
+                    startX= (j/ (float)maze[0].length) * gameView.getWidth() + (gameView.getWidth() / (float)maze[0].length)/2;
+                    startY = (i/ (float)maze.length) * gameView.getHeight() + (gameView.getHeight() / (float)maze.length)/2;
                 }
             }
         }
         respawnPlayer();
         // start the game thread
-        thread = new GameThread(getHolder(), this);
+        thread = new GameThread(surfaceHolder, this);
         thread.setRunning(true);
         thread.start();
     }
@@ -121,32 +135,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
 
-    public void updatePosition(double ax, double ay) {
-        // update player speed based on accelerometer sensor values
-
-        playerSpeedX += -ax/10 * 0.95f;
-        playerSpeedY += ay/10  * 0.95f;
-    }
-
-    public void setVibrator(Vibrator vibrator){
-        this.vibrator =  vibrator;
-    }
-
     private void handleScreenEdgeCollision(){
-        if (playerX - playerRadius < 0 || playerX + playerRadius > getWidth()) {
+        if (playerX - playerRadius < 0 || playerX + playerRadius > gameView.getWidth()) {
             playerSpeedX = -playerSpeedX * 0.50f; // reverse speed and apply friction
             if (playerX - playerRadius < 0) {
                 playerX = playerRadius;
             } else {
-                playerX = getWidth() - playerRadius;
+                playerX = gameView.getWidth() - playerRadius;
             }
         }
-        if (playerY - playerRadius < 0 || playerY + playerRadius > getHeight()) {
+        if (playerY - playerRadius < 0 || playerY + playerRadius > gameView.getHeight()) {
             playerSpeedY = -playerSpeedY * 0.50f; // reverse speed and apply friction
             if (playerY - playerRadius < 0) {
                 playerY = playerRadius;
             } else {
-                playerY = getHeight() - playerRadius;
+                playerY = gameView.getHeight() - playerRadius;
             }
         }
     }
@@ -190,7 +193,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
     public void draw(Canvas canvas) {
-        super.draw(canvas);
+        gameView.draw(canvas);
         canvas.drawColor(Color.WHITE);
         Paint startPaint = new Paint();
         startPaint.setColor(Color.RED);
@@ -204,11 +207,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
     }
 
-    public void pause() {
-        // not used in this example
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Unregister listener for accelerometer sensor
+        sensorManager.unregisterListener(this);
     }
 
-    public void resume() {
-        // not used in this example
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Register listener for accelerometer sensor
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        // update player speed based on accelerometer sensor values
+        double ax = Math.floor(event.values[0]);
+        double ay = Math.floor(event.values[1]);
+        playerSpeedX += -ax/10 * 0.95f;
+        playerSpeedY += ay/10  * 0.95f;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 }

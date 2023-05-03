@@ -5,13 +5,13 @@ import android.view.SurfaceHolder;
 
 public class GameThread extends Thread {
     private final SurfaceHolder surfaceHolder;
-    private GameView gameView;
+    private GameActivity gameActivity;
     private boolean running;
 
-    public GameThread(SurfaceHolder surfaceHolder, GameView gameView) {
+    public GameThread(SurfaceHolder surfaceHolder, GameActivity gameActivity) {
         super();
         this.surfaceHolder = surfaceHolder;
-        this.gameView = gameView;
+        this.gameActivity = gameActivity;
     }
 
     public void setRunning(boolean running) {
@@ -26,8 +26,8 @@ public class GameThread extends Thread {
             try {
                 canvas = surfaceHolder.lockCanvas();
                 synchronized (surfaceHolder) {
-                    gameView.update();
-                    gameView.draw(canvas);
+                    gameActivity.update();
+                    gameActivity.draw(canvas);
                 }
             } finally {
                 if (canvas != null) {

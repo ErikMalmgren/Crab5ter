@@ -4,9 +4,9 @@
     android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".GameActivity">
 
-    <main.crab5ter.GameView
+    <SurfaceView
         android:id="@+id/gameView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
