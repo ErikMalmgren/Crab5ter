@@ -1,6 +1,8 @@
 package main.crab5ter;
 
 import android.graphics.Paint;
+import android.graphics.Canvas;
+
 import android.util.Log;
 
 public class Wall {
@@ -57,5 +59,8 @@ public class Wall {
         }else{
             return y;
         }
+    }
+    public void createMaze(int [][] maze) {
+
     }
 }

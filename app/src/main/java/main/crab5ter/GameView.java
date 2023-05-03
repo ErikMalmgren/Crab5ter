@@ -13,11 +13,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private float playerX, playerY; // current position of the player
     private float playerRadius; // size of the player
     private Paint playerPaint;
-    private Wall wall1,wall2;
+    private Wall wall1,wall2, wall;
     private Paint hole;
     private GameThread thread;
     private float playerSpeedX, playerSpeedY;
     private Vibrator vibrator;
+
+    private int[][] maze;
+
+    private int cellSize = 100;
     
     public GameView(Context context) {
         super(context);
@@ -41,13 +45,37 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         playerRadius = 50;
         hole = new Paint();
         hole.setColor(Color.BLACK);
+        this.maze = new int[][]{
+                {1, 1, 1, 1, 1, 2, 1, 1, 1,1,1},
+                {1, 0, 0, 0, 0, 0, 1, 0, 0},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,-1,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,0,0,0,0,0,0},
+                {1,1,1,1,1,1,1,1,1,1,1},
+                {1,1,1,1,1,1,1,1,1,1,1}
+
+        };
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         respwanPlayer();
-        wall1 = new Wall(getWidth()/4f,getHeight()/4f -100,getWidth()/2f, 100,new Paint(), Color.GREEN);
-        wall2 = new Wall(getWidth()/4f -100,getHeight()/4f,100, getHeight()/2f,new Paint(), Color.YELLOW);
+        //wall1 = new Wall(getWidth()/4f,getHeight()/4f -100,getWidth()/2f, 100,new Paint(), Color.GREEN);
+        //wall2 = new Wall(getWidth()/4f -100,getHeight()/4f,100, getHeight()/2f,new Paint(), Color.YELLOW);
 
         // start the game thread
         thread = new GameThread(getHolder(), this);
@@ -104,7 +132,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    private void handleWallCollision(Wall wall){
+   /* private void handleWallCollision(Wall wall){
         double distanceToWall = getDistance(wall.clampX(playerX),wall.clampY(playerY), playerX,playerY);
         if( distanceToWall < playerRadius){
             double angle = Math.atan2(playerX- wall.clampX(playerX),playerY-wall.clampY(playerY));
@@ -115,14 +143,43 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             vibrator.vibrate(100);
         }
     }
+    */
+   private void handleWallCollision(){
+
+       int playerCellX = (int) Math.floor(playerX / cellSize);
+       int playerCellY = (int) Math.floor(playerY / cellSize);
+
+       if (maze[playerCellY][playerCellX] == 1) {
+           double distanceToWall = getDistance(playerX, playerY, playerCellX * cellSize + cellSize / 2, playerCellY * cellSize + cellSize / 2);
+           Log.d("Distance to wall = ",  ": " + distanceToWall);
+           if (distanceToWall < playerRadius) {
+               double angle = Math.atan2(playerY - (playerCellY * cellSize + cellSize / 2), playerX - (playerCellX * cellSize + cellSize / 2));
+               playerX = (float) ((playerCellX * cellSize + cellSize / 2) + (playerRadius * Math.cos(angle)));
+               playerY = (float) ((playerCellY * cellSize + cellSize / 2) + (playerRadius * Math.sin(angle)));
+               if (Math.round(Math.cos(angle)) != 0) playerSpeedX = Math.abs(playerSpeedX) * Math.round(Math.cos(angle)) * 0.50f;
+               if (Math.round(Math.sin(angle)) != 0) playerSpeedY = Math.abs(playerSpeedY) * Math.round(Math.sin(angle)) * 0.50f;
+               vibrator.vibrate(100);
+           }
+       } else if(maze[playerCellY][playerCellX] == -1) {
+           // this is wrong..
+           double distanceToHole = getDistance(playerX, playerY, playerCellX * cellSize + cellSize / 2, playerCellY * cellSize + cellSize / 2);
+            if(distanceToHole < playerRadius) {
+                respwanPlayer();
+            }
+       }
+   }
+
+
+
+
+
 
     public void update() {
         handleScreenEdgeCollision();
-        handleWallCollision(wall1);
-        handleWallCollision(wall2);
-        if(getDistance(getWidth()*3f/4f,getHeight()*3f/4f,playerX,playerY) < 100){
-            respwanPlayer();
-        }
+        handleWallCollision();
+       // if(getDistance(getWidth()*3f/4f,getHeight()*3f/4f,playerX,playerY) < 100){
+       //     respwanPlayer();
+       // }
         playerX += playerSpeedX;
         playerY += playerSpeedY;
 
@@ -139,13 +196,45 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         playerSpeedY = 0;
     }
 
+
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        canvas.drawColor(Color.WHITE);
+      /*  canvas.drawColor(Color.WHITE);
         canvas.drawRect(wall1.left(),wall1.top(),wall1.right(),wall1.bottom(),wall1.getPaint());
         canvas.drawRect(wall2.left(),wall2.top(),wall2.right(),wall2.bottom(),wall2.getPaint());
         canvas.drawCircle(getWidth()*3f/4f,getHeight()*3f/4f, 100, hole);
         canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
+      */
+
+
+            Paint wallPaint = new Paint();
+            wallPaint.setColor(Color.GREEN);
+            Paint holePaint = new Paint();
+            holePaint.setColor(Color.RED);
+            canvas.drawColor(Color.WHITE);
+            canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
+
+
+            for (int i = 0; i < maze.length; i++) {
+                for (int j = 0; j < maze[i].length; j++) {
+                    int cellValue = maze[i][j];
+                    if (cellValue == 1) {
+                        canvas.drawRect(j * cellSize, i * cellSize,
+                                (j + 1) * cellSize, (i + 1) * cellSize, wallPaint);
+                    }
+                     else if (cellValue == -1) {
+                        canvas.drawCircle(j*cellSize,i*cellSize,playerRadius+5,holePaint);
+                    }
+                }
+            }
+
+
+
+
+
+
+
+
 
 /*        Paint clampLine = new Paint();
         clampLine.setColor(Color.RED);
