@@ -8,17 +8,17 @@ function convertToJavaMatrix(input: string): string {
   );
   return `int[][] maze = {${javaArray.join(',')}};`;
 }
-
-const input = `0001111111
-0000000001
-1001111001
-1000001001
-1001111111
-1001001001
-1001001001
-1000001001
-1001001001
-100100000
-111111100`;
+// Använd denna för att generera input https://www.dcode.fr/maze-generator
+const input =  `0001111111
+                0000000001
+                1001111001
+                1000001001
+                1001111111
+                1001001001
+                1001001001
+                1000001001
+                1001001001
+                100100000
+                111111100`;
 const javaMatrix = convertToJavaMatrix(input);
 console.log(javaMatrix);
