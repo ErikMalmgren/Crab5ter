@@ -9,19 +9,23 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import java.util.ArrayList;
+
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private float playerX, playerY; // current position of the player
     private float playerRadius; // size of the player
     private Paint playerPaint;
-    private Wall wall1,wall2, wall;
-    private Paint hole;
+    private ArrayList<Wall> walls;
+    private ArrayList<Hole> holes;
     private GameThread thread;
     private float playerSpeedX, playerSpeedY;
+    private float startX,startY; //start position for player.
     private Vibrator vibrator;
 
     private int[][] maze;
 
-    private int cellSize = 100;
+    //private int cellSize = 100;
     
     public GameView(Context context) {
         super(context);
@@ -42,12 +46,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         getHolder().addCallback(this);
         playerPaint = new Paint();
         playerPaint.setColor(Color.BLUE);
-        playerRadius = 50;
-        hole = new Paint();
-        hole.setColor(Color.BLACK);
+        holes = new ArrayList<Hole>();
+        walls = new ArrayList<Wall>();
         this.maze = new int[][]{
-                {1, 1, 1, 1, 1, 2, 1, 1, 1,1,1},
-                {1, 0, 0, 0, 0, 0, 1, 0, 0},
+                {1,1,1,1,0,2,0,1,1,1,1},
+                {1,0,0,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
                 {0,0,-1,0,0,0,0,0,0,1,1},
@@ -60,23 +63,39 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 {0,0,0,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,0,-1,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,0,0},
                 {1,1,1,1,1,1,1,1,1,1,1},
                 {1,1,1,1,1,1,1,1,1,1,1}
-
         };
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        respwanPlayer();
-        //wall1 = new Wall(getWidth()/4f,getHeight()/4f -100,getWidth()/2f, 100,new Paint(), Color.GREEN);
-        //wall2 = new Wall(getWidth()/4f -100,getHeight()/4f,100, getHeight()/2f,new Paint(), Color.YELLOW);
-
+        for(int i = 0; i < maze.length;i++){
+            for(int j = 0; j < maze[0].length;j++){
+                if(maze[i][j] == 1) {//1 = väg
+                    float wallX = (j/ (float)maze[0].length) * getWidth();
+                    float wallY = (i/ (float)maze.length) * getHeight();
+                    float width = getWidth() / (float)maze[0].length;
+                    float height = getHeight() / (float)maze.length;
+                    walls.add(new Wall(wallX, wallY, width, height, new Paint(), Color.GREEN));
+                }else if (maze[i][j] == -1){//-1 = hål
+                    float radius = Math.min(getWidth() / (float)maze[0].length,getHeight() / (float)maze.length)/2;
+                    float holeX = (j/ (float)maze[0].length) * getWidth() + (getWidth() / (float)maze[0].length)/2;
+                    float holeY = (i/ (float)maze.length) * getHeight() + (getHeight() / (float)maze.length)/2;
+                    holes.add(new Hole(holeX,holeY,radius,new Paint(), Color.BLACK));
+                }else if (maze[i][j] == 2){// 2 = startPosition.
+                    playerRadius = Math.min(getWidth() / (float)maze[0].length,getHeight() / (float)maze.length)/2.5f;
+                    startX= (j/ (float)maze[0].length) * getWidth() + (getWidth() / (float)maze[0].length)/2;
+                    startY = (i/ (float)maze.length) * getHeight() + (getHeight() / (float)maze.length)/2;
+                }
+            }
+        }
+        respawnPlayer();
         // start the game thread
         thread = new GameThread(getHolder(), this);
         thread.setRunning(true);
@@ -132,7 +151,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-   /* private void handleWallCollision(Wall wall){
+    private void handleWallCollision(Wall wall){
         double distanceToWall = getDistance(wall.clampX(playerX),wall.clampY(playerY), playerX,playerY);
         if( distanceToWall < playerRadius){
             double angle = Math.atan2(playerX- wall.clampX(playerX),playerY-wall.clampY(playerY));
@@ -143,55 +162,28 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             vibrator.vibrate(100);
         }
     }
-    */
-   private void handleWallCollision(){
-
-       int playerCellX = (int) Math.floor(playerX / cellSize);
-       int playerCellY = (int) Math.floor(playerY / cellSize);
-
-       if (maze[playerCellY][playerCellX] == 1) {
-           double distanceToWall = getDistance(playerX, playerY, playerCellX * cellSize + cellSize / 2, playerCellY * cellSize + cellSize / 2);
-           Log.d("Distance to wall = ",  ": " + distanceToWall);
-           if (distanceToWall < playerRadius) {
-               double angle = Math.atan2(playerY - (playerCellY * cellSize + cellSize / 2), playerX - (playerCellX * cellSize + cellSize / 2));
-               playerX = (float) ((playerCellX * cellSize + cellSize / 2) + (playerRadius * Math.cos(angle)));
-               playerY = (float) ((playerCellY * cellSize + cellSize / 2) + (playerRadius * Math.sin(angle)));
-               if (Math.round(Math.cos(angle)) != 0) playerSpeedX = Math.abs(playerSpeedX) * Math.round(Math.cos(angle)) * 0.50f;
-               if (Math.round(Math.sin(angle)) != 0) playerSpeedY = Math.abs(playerSpeedY) * Math.round(Math.sin(angle)) * 0.50f;
-               vibrator.vibrate(100);
-           }
-       } else if(maze[playerCellY][playerCellX] == -1) {
-           // this is wrong..
-           double distanceToHole = getDistance(playerX, playerY, playerCellX * cellSize + cellSize / 2, playerCellY * cellSize + cellSize / 2);
-            if(distanceToHole < playerRadius) {
-                respwanPlayer();
-            }
-       }
-   }
-
-
-
-
-
 
     public void update() {
         handleScreenEdgeCollision();
-        handleWallCollision();
-       // if(getDistance(getWidth()*3f/4f,getHeight()*3f/4f,playerX,playerY) < 100){
-       //     respwanPlayer();
-       // }
+        for(Wall wall : walls){
+            handleWallCollision(wall);
+        }
+        for(Hole hole : holes){
+            if(getDistance(hole.getX(),hole.getY(),playerX,playerY) < hole.getRadius()){
+                respawnPlayer();
+            }
+        }
         playerX += playerSpeedX;
         playerY += playerSpeedY;
-
     }
 
     private double getDistance(float x1,float y1, float x2, float y2){
         return Math.sqrt(Math.pow((x1-x2),2) + Math.pow((y1-y2),2));
     }
 
-    private void respwanPlayer(){
-        playerX = getWidth()/2f;
-        playerY = getHeight()/2f;
+    private void respawnPlayer(){
+        playerX = startX;
+        playerY = startY;
         playerSpeedX = 0;
         playerSpeedY = 0;
     }
@@ -199,54 +191,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     public void draw(Canvas canvas) {
         super.draw(canvas);
-      /*  canvas.drawColor(Color.WHITE);
-        canvas.drawRect(wall1.left(),wall1.top(),wall1.right(),wall1.bottom(),wall1.getPaint());
-        canvas.drawRect(wall2.left(),wall2.top(),wall2.right(),wall2.bottom(),wall2.getPaint());
-        canvas.drawCircle(getWidth()*3f/4f,getHeight()*3f/4f, 100, hole);
+        canvas.drawColor(Color.WHITE);
+        Paint startPaint = new Paint();
+        startPaint.setColor(Color.RED);
+        canvas.drawCircle(startX,startY,playerRadius,startPaint);
+        for(Wall wall:walls){
+            canvas.drawRect(wall.left(),wall.top(),wall.right(),wall.bottom(),wall.getPaint());
+        }
+        for(Hole hole:holes){
+            canvas.drawCircle(hole.getX(),hole.getY(), hole.getRadius(), hole.getPaint());
+        }
         canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
-      */
-
-
-            Paint wallPaint = new Paint();
-            wallPaint.setColor(Color.GREEN);
-            Paint holePaint = new Paint();
-            holePaint.setColor(Color.RED);
-            canvas.drawColor(Color.WHITE);
-            canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
-
-
-            for (int i = 0; i < maze.length; i++) {
-                for (int j = 0; j < maze[i].length; j++) {
-                    int cellValue = maze[i][j];
-                    if (cellValue == 1) {
-                        canvas.drawRect(j * cellSize, i * cellSize,
-                                (j + 1) * cellSize, (i + 1) * cellSize, wallPaint);
-                    }
-                     else if (cellValue == -1) {
-                        canvas.drawCircle(j*cellSize,i*cellSize,playerRadius+5,holePaint);
-                    }
-                }
-            }
-
-
-
-
-
-
-
-
-
-/*        Paint clampLine = new Paint();
-        clampLine.setColor(Color.RED);
-        double angle = Math.atan2(playerX- wall.clampX(playerX),playerY-wall.clampY(playerY));
-        canvas.drawCircle((float) (wall.clampX(playerX) + (playerRadius*Math.sin(angle))), (float) (wall.clampY(playerY) + (playerRadius*Math.cos(angle))),10,clampLine);*/
-
-/*        Paint textPaint = new Paint();
-        textPaint.setColor(Color.RED);
-        textPaint.setTextSize(100);
-        DecimalFormat df = new DecimalFormat("#.####");
-        String testText = df.format(Math.sin(angle)) + " " + df.format(Math.cos(angle));
-        canvas.drawText(testText, getWidth()/2f - textPaint.measureText(testText)/2, getHeight()/2f, textPaint);*/
     }
 
     public void pause() {
