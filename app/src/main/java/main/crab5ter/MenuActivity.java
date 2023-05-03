@@ -18,8 +18,4 @@ public class MenuActivity extends AppCompatActivity {
         Intent i = new Intent(this, GameActivity.class);
         startActivity(i);
     }
-
-    public void quit() {
-        // stop
-    }
 }
