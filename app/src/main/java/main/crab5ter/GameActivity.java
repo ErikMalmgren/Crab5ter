@@ -33,6 +33,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private float startX,startY; //start position for player.
 
     private int[][] maze;
+    private long lastUpdate;
 
     //private int cellSize = 100;
     
@@ -224,10 +225,29 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     @Override
     public void onSensorChanged(SensorEvent event) {
         // update player speed based on accelerometer sensor values
-        double ax = Math.floor(event.values[0]);
-        double ay = Math.floor(event.values[1]);
-        playerSpeedX += -ax/10 * 0.95f;
-        playerSpeedY += ay/10  * 0.95f;
+        long now = System.currentTimeMillis();
+        if(lastUpdate != 0) {
+            float deltaTime = (now - lastUpdate) / 1000.0f;
+            double ax = Math.floor(event.values[0]);
+            double ay = Math.floor(event.values[1]);
+            updatePostition(ax, ay, deltaTime);
+        }
+        lastUpdate = now;
+    }
+
+    public void updatePostition(double ax, double ay, float deltaTime) {
+        //Update speed
+        playerSpeedX += - ax * deltaTime * 10;
+        playerSpeedY += ay * deltaTime * 10;
+
+        //Damping
+        playerSpeedX *= 0.99f;
+        playerSpeedY *= 0.99f;
+
+        //Update position
+        playerX += playerSpeedX * deltaTime;
+        playerY += playerSpeedY * deltaTime;
+
     }
 
     @Override
