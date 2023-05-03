@@ -1,7 +1,9 @@
 package main.crab5ter;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,6 +16,7 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -31,8 +34,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private GameThread thread;
     private float playerSpeedX, playerSpeedY;
     private float startX,startY; //start position for player.
+    private float endX, endY; // goal position
 
-    private int[][] maze;
+    private int[][] maze, oldMaze;
     private long lastUpdate;
 
     //private int cellSize = 100;
@@ -63,50 +67,70 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         playerPaint.setColor(Color.BLUE);
         holes = new ArrayList<Hole>();
         walls = new ArrayList<Wall>();
-        this.maze = new int[][]{
-                {1,1,1,1,0,2,0,1,1,1,1},
-                {1,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
+        this.oldMaze = new int[][]{
+                {1,1,1,1,1,1,1,1,0,0,2},
+                {1,0,0,0,0,0,0,1,0,0,0},
+                {0,0,0,0,0,0,0,1,0,0,0},
+                {0,0,0,0,0,0,0,1,0,0,1},
                 {0,0,-1,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
+                {0,0,0,0,1,1,1,1,1,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
+                {1,1,1,1,1,0,0,0,0,1,1},
+                {0,0,0,0,1,0,0,0,0,1,1},
+                {0,0,0,0,1,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,-1,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
                 {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,0,0},
-                {1,1,1,1,1,1,1,1,1,1,1},
+                {0,0,0,0,0,0,0,0,1,1,1},
+                {0,0,0,0,0,0,0,0,1,1,1},
+                {1,1,1,1,0,3,0,1,1,1,1},
                 {1,1,1,1,1,1,1,1,1,1,1}
+        };
+        this.maze = new int[][]{
+                {2,0,0,1,1,1,1,1,1,1},
+                {0,0,0,0,0,0,0,0,0,1},
+                {1,0,0,1,1,1,1,0,0,1},
+                {1,0,0,0,0,0,1,0,-1,0},
+                {1,0,0,1,0,1,1,1,1,1},
+                {1,0,0,0,0,0,1,0,-1,0},
+                {1,0,0,-1,0,0,1,0,0,1},
+                {1,0,0,1,0,0,1,0,0,1},
+                {1,0,0,1,0,0,1,0,0,1},
+                {1,0,0,1,0,0,0,0,0,0},
+                {1,1,1,1,1,1,1,0,3,0}
         };
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        for(int i = 0; i < maze.length;i++){
-            for(int j = 0; j < maze[0].length;j++){
+        float mazeWidth = gameView.getWidth() / (float)maze[0].length;
+        float mazeHeight = gameView.getHeight() / (float)maze.length;
+        float minDimension = Math.min(mazeWidth, mazeHeight);
+
+        for (int i = 0; i < maze.length; i++){
+            for (int j = 0; j < maze[0].length; j++){
+                float normalizedX = j / (float)maze[0].length;
+                float normalizedY = i / (float)maze.length;
+                float posX = normalizedX * gameView.getWidth();
+                float posY = normalizedY * gameView.getHeight();
+                float centerX = posX + mazeWidth / 2;
+                float centerY = posY + mazeHeight / 2;
+
                 if(maze[i][j] == 1) { //1 = vägg
-                    float wallX = (j/ (float)maze[0].length) * gameView.getWidth();
-                    float wallY = (i/ (float)maze.length) * gameView.getHeight();
-                    float width = gameView.getWidth() / (float)maze[0].length;
-                    float height = gameView.getHeight() / (float)maze.length;
-                    walls.add(new Wall(wallX, wallY, width, height, new Paint(), Color.GREEN));
+                    walls.add(new Wall(posX, posY, mazeWidth, mazeHeight, new Paint(), Color.GREEN));
                 } else if (maze[i][j] == -1) { //-1 = hål
-                    float radius = Math.min(gameView.getWidth() / (float)maze[0].length,gameView.getHeight() / (float)maze.length)/2;
-                    float holeX = (j/ (float)maze[0].length) * gameView.getWidth() + (gameView.getWidth() / (float)maze[0].length)/2;
-                    float holeY = (i/ (float)maze.length) * gameView.getHeight() + (gameView.getHeight() / (float)maze.length)/2;
-                    holes.add(new Hole(holeX,holeY,radius,new Paint(), Color.BLACK));
-                }else if (maze[i][j] == 2){// 2 = startPosition.
-                    playerRadius = Math.min(gameView.getWidth() / (float)maze[0].length,gameView.getHeight() / (float)maze.length)/2.5f;
-                    startX= (j/ (float)maze[0].length) * gameView.getWidth() + (gameView.getWidth() / (float)maze[0].length)/2;
-                    startY = (i/ (float)maze.length) * gameView.getHeight() + (gameView.getHeight() / (float)maze.length)/2;
+                    holes.add(new Hole(centerX, centerY, minDimension / 2, new Paint(), Color.BLACK));
+                } else if (maze[i][j] == 2) {// 2 = startPosition.
+                    playerRadius = minDimension / 2.5f;
+                    startX = centerX;
+                    startY = centerY;
+                } else if (maze[i][j] == 3) { // 3 = mål
+                    endX = centerX;
+                    endY = centerY;
                 }
             }
         }
@@ -174,8 +198,13 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         }
         for(Hole hole : holes){
             if(getDistance(hole.getX(),hole.getY(),playerX,playerY) < hole.getRadius()){
+                onDeath();
                 respawnPlayer();
             }
+        }
+        if (getDistance(endX, endY, playerX, playerY) < playerRadius){
+            onWin();
+            respawnPlayer();
         }
         playerX += playerSpeedX;
         playerY += playerSpeedY;
@@ -198,7 +227,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         canvas.drawColor(Color.WHITE);
         Paint startPaint = new Paint();
         startPaint.setColor(Color.RED);
-        canvas.drawCircle(startX,startY,playerRadius,startPaint);
+        Paint endPaint = new Paint();
+        endPaint.setColor(Color.YELLOW);
+        canvas.drawCircle(startX,startY, playerRadius, startPaint);
+        canvas.drawCircle(endX,endY, playerRadius, endPaint);
         for(Wall wall:walls){
             canvas.drawRect(wall.left(),wall.top(),wall.right(),wall.bottom(),wall.getPaint());
         }
@@ -206,6 +238,58 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             canvas.drawCircle(hole.getX(),hole.getY(), hole.getRadius(), hole.getPaint());
         }
         canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
+    }
+
+    public void onDeath() {
+        // https://pastebin.com/qpjpi80P
+        onPause();
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                new AlertDialog.Builder(GameActivity.this)
+                        .setTitle("Tyvärr, du dog")
+                        .setMessage("Vill du starta om spelet?")
+                        .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                respawnPlayer();
+                                onResume();
+                            }
+                        })
+                        .setNegativeButton("Nej", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                thread.setRunning(false);
+                                finish();
+                            }
+                        })
+                        .show();
+            }
+        });
+    }
+
+    public void onWin() {
+        // https://pastebin.com/qpjpi80P
+        onPause();
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                new AlertDialog.Builder(GameActivity.this)
+                        .setTitle("Grattis, du vann!")
+                        .setMessage("Vill du spela igen?")
+                        .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                respawnPlayer();
+                                onResume();
+                            }
+                        })
+                        .setNegativeButton("Nej", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                thread.setRunning(false);
+                                finish();
+                            }
+                        })
+                        .show();
+            }
+        });
     }
 
     @Override
@@ -230,12 +314,12 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             float deltaTime = (now - lastUpdate) / 1000.0f;
             double ax = Math.floor(event.values[0]);
             double ay = Math.floor(event.values[1]);
-            updatePostition(ax, ay, deltaTime);
+            updatePosition(ax, ay, deltaTime);
         }
         lastUpdate = now;
     }
 
-    public void updatePostition(double ax, double ay, float deltaTime) {
+    public void updatePosition(double ax, double ay, float deltaTime) {
         //Update speed
         playerSpeedX += - ax * deltaTime * 10;
         playerSpeedY += ay * deltaTime * 10;
@@ -248,6 +332,13 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         playerX += playerSpeedX * deltaTime;
         playerY += playerSpeedY * deltaTime;
 
+        float speed = (float) Math.sqrt(Math.pow(playerSpeedX, 2) + Math.pow(playerSpeedY, 2));
+        float maxSpeed = 20;
+
+        if (speed > maxSpeed) {
+            playerSpeedX = (playerSpeedX / speed) * maxSpeed;
+            playerSpeedY = (playerSpeedY / speed) * maxSpeed;
+        }
     }
 
     @Override
