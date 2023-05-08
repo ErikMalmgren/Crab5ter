@@ -42,9 +42,11 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private Bitmap bitmap;
     private Matrix matrix;
     private Bitmap wallBitmap;
-    private int[][] maze, oldMaze;
+    //private int[][] maze, oldMaze;
     private long lastUpdate;
     private Sound sounds;
+    private int[][] maze;
+
 
     public GameActivity() {
 
@@ -76,42 +78,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         holes = new ArrayList<Hole>();
         closeToHoles = new ArrayList<Hole>();
         walls = new ArrayList<Wall>();
-        this.oldMaze = new int[][]{
-                {1,1,1,1,1,1,1,1,0,0,2},
-                {1,0,0,0,0,0,0,1,0,0,0},
-                {0,0,0,0,0,0,0,1,0,0,0},
-                {0,0,0,0,0,0,0,1,0,0,1},
-                {0,0,-1,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,1,1,1,1,1,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {1,1,1,1,1,0,0,0,0,1,1},
-                {0,0,0,0,1,0,0,0,0,1,1},
-                {0,0,0,0,1,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,-1,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,0,1,1},
-                {0,0,0,0,0,0,0,0,1,1,1},
-                {0,0,0,0,0,0,0,0,1,1,1},
-                {1,1,1,1,0,3,0,1,1,1,1},
-                {1,1,1,1,1,1,1,1,1,1,1}
-        };
-        this.maze = new int[][]{
-                {2,0,0,1,1,1,1,1,1,1},
-                {0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,1,1,1,1,0,0,1},
-                {1,0,0,0,0,0,1,0,-1,0},
-                {1,0,0,1,0,1,1,1,1,1},
-                {1,0,0,0,0,0,1,0,0,3},
-                {1,0,0,-1,0,0,1,0,0,1},
-                {1,0,0,1,0,0,1,0,0,1},
-                {1,0,0,1,0,0,1,0,0,1},
-                {1,0,0,1,0,0,0,0,0,0},
-                {1,1,1,1,1,1,1,0,-1,0}
-        };
+
+        this.maze = new Maze().getHardMaze();
+
     }
 
     public String a_b_Testing() {
