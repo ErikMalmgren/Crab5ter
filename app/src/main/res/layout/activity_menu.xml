@@ -6,11 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".MenuActivity">
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/background_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
     <TextView
         android:id="@+id/txt_title"
         android:layout_width="263dp"
         android:layout_height="0dp"
-        android:layout_marginTop="193dp"
+        android:layout_marginTop="220dp"
         android:layout_marginBottom="288dp"
         android:fontFamily="monospace"
         android:text="@string/title"
@@ -39,9 +47,10 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="97dp"
         android:onClick="launchMainActivityB"
-        android:text="Button"
+        android:text="START B"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.473"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_title" />
 

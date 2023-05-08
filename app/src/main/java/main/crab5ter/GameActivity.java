@@ -4,15 +4,20 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.Image;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -20,6 +25,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -48,7 +54,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private int closeSound;
     private int crashSound;
 
+    private Bitmap bitmap;
+    private Matrix matrix;
 
+    private Bitmap wallBitmap;
 
     private int[][] maze, oldMaze;
     private long lastUpdate;
@@ -59,6 +68,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_game);
@@ -74,8 +84,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
 
         loadSounds();
 
-
         init();
+
     }
 
     private void loadSounds() {
@@ -95,7 +105,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
 
     private void init() {
         playerPaint = new Paint();
-        playerPaint.setColor(Color.BLUE);
+        playerPaint.setColor(Color.RED);
         holes = new ArrayList<Hole>();
         closeToHoles = new ArrayList<Hole>();
         walls = new ArrayList<Wall>();
@@ -172,6 +182,17 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
                 }
             }
         }
+
+        // background
+        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.beach_background);
+        matrix = new Matrix();
+        float scaleX = (float) gameView.getWidth() / bitmap.getWidth();
+        float scaleY = (float) gameView.getHeight() / bitmap.getHeight();
+        matrix.setScale(scaleX, scaleY);
+
+        // wall
+        wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.hink2);
+
         respawnPlayer();
         // start the game thread
         thread = new GameThread(surfaceHolder, this);
@@ -232,6 +253,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             if(Math.round(Math.cos(angle)) != 0)playerSpeedY = Math.abs(playerSpeedY) * Math.round(Math.cos(angle)) * 0.50f;
             if(Math.round(Math.sin(angle)) != 0)playerSpeedX = Math.abs(playerSpeedX) * Math.round(Math.sin(angle)) * 0.50f;
 
+            // tester med vibration och ljud
             if(a_b_Testing().equals("a")) {
                 if((playerRadius - distanceToWall) > 2) {
                     soundPool.play(crashSound, 0.5f, 0.5f, 0, 0, 1.0f);
@@ -272,7 +294,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
                 }
             }
         }
-
+        // win
         if (getDistance(endX, endY, playerX, playerY) < playerRadius){
             soundPool.play(winSound, 1.0f, 1.0f, 0, 0, 1.0f);
             onWin();
@@ -293,25 +315,28 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         playerSpeedY = 0;
     }
 
-
     public void draw(Canvas canvas) {
         gameView.draw(canvas);
-        canvas.drawColor(Color.WHITE);
+        canvas.drawBitmap(bitmap, matrix, null);
         Paint startPaint = new Paint();
-        startPaint.setColor(Color.RED);
+        startPaint.setColor(Color.BLUE);
         Paint endPaint = new Paint();
         endPaint.setColor(Color.YELLOW);
         canvas.drawCircle(startX,startY, playerRadius, startPaint);
         canvas.drawCircle(endX,endY, playerRadius, endPaint);
+
         for(Wall wall:walls){
-            canvas.drawRect(wall.left(),wall.top(),wall.right(),wall.bottom(),wall.getPaint());
+            Rect rect = new Rect((int) wall.left(), (int) wall.top(), (int) wall.right(), (int) wall.bottom());
+            canvas.drawBitmap(wallBitmap, null, rect, null);
         }
 
+       /* for(Wall wall:walls){
+            canvas.drawRect(wall.left(),wall.top(),wall.right(),wall.bottom(),wall.getPaint());
+        }
+        */
         for(Hole hole:holes){
             canvas.drawCircle(hole.getX(),hole.getY(), hole.getRadius(), hole.getPaint());
         }
-
-
 
         canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
     }
