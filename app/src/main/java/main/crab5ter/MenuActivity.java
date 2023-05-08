@@ -18,6 +18,13 @@ public class MenuActivity extends AppCompatActivity {
 
     public void launchMainActivity(View v) {
         Intent i = new Intent(this, GameActivity.class);
+        i.putExtra("testing" , "a");
+        startActivity(i);
+    }
+
+    public void launchMainActivityB(View v) {
+        Intent i = new Intent(this, GameActivity.class);
+        i.putExtra("testing" , "b");
         startActivity(i);
     }
 }
