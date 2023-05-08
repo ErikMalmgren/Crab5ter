@@ -15,19 +15,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
-import android.media.Image;
-import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.Toast;
-
 import java.util.ArrayList;
 
 public class GameActivity extends Activity implements SurfaceHolder.Callback, SensorEventListener {
@@ -46,21 +39,12 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private float playerSpeedX, playerSpeedY;
     private float startX,startY; //start position for player.
     private float endX, endY; // goal position
-
-    private SoundPool soundPool;
-    private int deathSound;
-    private int winSound;
-
-    private int closeSound;
-    private int crashSound;
-
     private Bitmap bitmap;
     private Matrix matrix;
-
     private Bitmap wallBitmap;
-
     private int[][] maze, oldMaze;
     private long lastUpdate;
+    private Sound sounds;
 
     public GameActivity() {
 
@@ -81,27 +65,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
-        loadSounds();
-
+        sounds = new Sound(this);
         init();
 
     }
-
-    private void loadSounds() {
-        SoundPool.Builder builder = new SoundPool.Builder();
-        AudioAttributes attributes = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build();
-        builder.setAudioAttributes(attributes).setMaxStreams(10);
-        soundPool = builder.build();
-        deathSound = soundPool.load(this, R.raw.death_sound, 1);
-        winSound = soundPool.load(this, R.raw.win_sound, 1);
-        crashSound = soundPool.load(this, R.raw.crash_sound, 1);
-        closeSound = soundPool.load(this, R.raw.close_hole, 1);
-    }
-
 
     private void init() {
         playerPaint = new Paint();
@@ -191,8 +158,12 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         matrix.setScale(scaleX, scaleY);
 
         // wall
-        wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.hink2);
+        if(a_b_Testing().equals("a")) {
+            wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.stone);
+        } else if(a_b_Testing().equals("b")) {
+            wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.hink3);
 
+        }
         respawnPlayer();
         // start the game thread
         thread = new GameThread(surfaceHolder, this);
@@ -256,7 +227,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             // tester med vibration och ljud
             if(a_b_Testing().equals("a")) {
                 if((playerRadius - distanceToWall) > 2) {
-                    soundPool.play(crashSound, 0.5f, 0.5f, 0, 0, 1.0f);
+                    sounds.playCrashSound();
                     vibrator.vibrate(100); // bara vibrate vid hård träff
                 }
             } else {
@@ -273,7 +244,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         }
         for(Hole hole : holes){
             if(getDistance(hole.getX(),hole.getY(),playerX,playerY) < hole.getRadius()){
-                soundPool.play(deathSound, 1.0f, 1.0f, 0, 0, 1.0f);
+                sounds.playDeathSound();
                 onDeath();
                 respawnPlayer();
             }
@@ -283,7 +254,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         if(a_b_Testing().equals("a")) {
             for(Hole hole : closeToHoles){
                 if(getDistance(hole.getX(),hole.getY(),playerX,playerY) < hole.getRadius()){
-                    soundPool.play(closeSound, 1.0f, 1.0f, 0, 0, 1.0f);
+                    sounds.playCloseSound();
 
                 }
             }
@@ -296,7 +267,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         }
         // win
         if (getDistance(endX, endY, playerX, playerY) < playerRadius){
-            soundPool.play(winSound, 1.0f, 1.0f, 0, 0, 1.0f);
+            sounds.playWinSound();
             onWin();
             respawnPlayer();
         }
@@ -330,14 +301,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             canvas.drawBitmap(wallBitmap, null, rect, null);
         }
 
-       /* for(Wall wall:walls){
-            canvas.drawRect(wall.left(),wall.top(),wall.right(),wall.bottom(),wall.getPaint());
-        }
-        */
         for(Hole hole:holes){
             canvas.drawCircle(hole.getX(),hole.getY(), hole.getRadius(), hole.getPaint());
         }
-
         canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
     }
 
@@ -418,6 +384,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             updatePosition(ax, ay, deltaTime);
         }
         lastUpdate = now;
+
+
+
     }
 
     public void updatePosition(double ax, double ay, float deltaTime) {
