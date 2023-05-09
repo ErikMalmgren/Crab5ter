@@ -34,6 +34,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private Paint playerPaint;
     private ArrayList<Wall> walls;
     private ArrayList<Hole> holes;
+    private ArrayList<Trampoline> trampolines;
     private ArrayList<Hole> closeToHoles;
     private GameThread thread;
     private float playerSpeedX, playerSpeedY;
@@ -42,7 +43,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private Bitmap bitmap;
     private Matrix matrix;
     private Bitmap wallBitmap;
-    //private int[][] maze, oldMaze;
+
+    private Bitmap trampolineBitmap;
     private long lastUpdate;
     private Sound sounds;
     private int[][] maze;
@@ -78,6 +80,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         holes = new ArrayList<Hole>();
         closeToHoles = new ArrayList<Hole>();
         walls = new ArrayList<Wall>();
+        trampolines = new ArrayList<Trampoline>();
         if(a_b_Testing().equals("a")) {
             this.maze = new Maze().getHardMaze();
         } else {
@@ -119,6 +122,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
                 } else if (maze[i][j] == 3) { // 3 = mål
                     endX = centerX;
                     endY = centerY;
+                } else if(maze[i][j] == 4) {
+                    trampolines.add(new Trampoline(posX, posY, mazeWidth, mazeHeight, new Paint(),Color.TRANSPARENT));
                 }
             }
         }
@@ -135,8 +140,11 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.stone);
         } else if(a_b_Testing().equals("b")) {
             wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.hink2small);
-
         }
+
+        // trampoline
+        trampolineBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.trampoline2copy);
+
         respawnPlayer();
         // start the game thread
         thread = new GameThread(surfaceHolder, this);
@@ -276,6 +284,12 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
 
         for(Hole hole:holes){
             canvas.drawCircle(hole.getX(),hole.getY(), hole.getRadius(), hole.getPaint());
+        }
+
+        for(Trampoline trampoline: trampolines) {
+            Rect rect = new Rect((int) trampoline.left(), (int) trampoline.top(), (int) trampoline.right(), (int) trampoline.bottom());
+            canvas.drawBitmap(trampolineBitmap, null, rect, null);
+
         }
         canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
     }
