@@ -78,8 +78,12 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         holes = new ArrayList<Hole>();
         closeToHoles = new ArrayList<Hole>();
         walls = new ArrayList<Wall>();
+        if(a_b_Testing().equals("a")) {
+            this.maze = new Maze().getHardMaze();
+        } else {
+            this.maze = new Maze().getEasyMaze();
+        }
 
-        this.maze = new Maze().getHardMaze();
 
     }
 
@@ -120,7 +124,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         }
 
         // background
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.beach_background);
+        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.background_small);
         matrix = new Matrix();
         float scaleX = (float) gameView.getWidth() / bitmap.getWidth();
         float scaleY = (float) gameView.getHeight() / bitmap.getHeight();
@@ -130,7 +134,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         if(a_b_Testing().equals("a")) {
             wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.stone);
         } else if(a_b_Testing().equals("b")) {
-            wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.hink3);
+            wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.hink2small);
 
         }
         respawnPlayer();
