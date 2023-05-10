@@ -372,9 +372,32 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         }
         lastUpdate = now;
 
+        // Kolla om mobilen skakas, och att bollen är på en trampolin
+        if((Math.abs(event.values[0]) > 20 || Math.abs(event.values[1]) > 20 || Math.abs(event.values[2]) > 20) && playerOnTrampoline()) {
+            jump();
+        }
 
 
     }
+
+    // kolla om spelaren är på en trampolin
+    private boolean playerOnTrampoline() {
+        if(playerY >25 && playerY < 40 && playerX > 595 && playerX < 620) {
+            return true;
+        }
+        return false;
+    }
+    // hoppa med bollen, kanske att man bara kan hoppa mellan två statiska trampoliner?
+    private void jump() {
+        vibrator.vibrate(100);
+        playerSpeedY = -50;
+        playerX = 750;
+        playerY = 30;
+
+
+
+    }
+
 
     public void updatePosition(double ax, double ay, float deltaTime) {
         //Update speed
