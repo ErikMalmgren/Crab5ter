@@ -13,15 +13,17 @@
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/backgroundai_select" />
 
     <Button
         android:id="@+id/btn_start_hard"
         android:layout_width="129dp"
         android:layout_height="57dp"
-        android:layout_marginBottom="168dp"
+        android:layout_marginBottom="132dp"
         android:fontFamily="sans-serif-black"
         android:onClick="launchMainActivityHard"
         android:text="HARD"
@@ -30,14 +32,14 @@
         app:cornerRadius="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.855"
+        app:layout_constraintHorizontal_bias="0.858"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/btn_start_medium"
         android:layout_width="129dp"
         android:layout_height="57dp"
-        android:layout_marginBottom="168dp"
+        android:layout_marginBottom="132dp"
         android:fontFamily="sans-serif-black"
         android:onClick="launchMainActivityMedium"
         android:text="MEDIUM"
@@ -52,7 +54,7 @@
         android:id="@+id/btn_start_easy"
         android:layout_width="129dp"
         android:layout_height="57dp"
-        android:layout_marginBottom="168dp"
+        android:layout_marginBottom="132dp"
         android:fontFamily="sans-serif-black"
         android:onClick="launchMainActivityEasy"
         android:text="EASY"
