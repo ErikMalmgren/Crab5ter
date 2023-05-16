@@ -14,20 +14,24 @@
         android:theme="@style/Theme.CRAB5TER.NoActionBar"
         tools:targetApi="31">
         <activity
+            android:name=".GameMenuActivity"
+            android:screenOrientation="landscape"
+            android:exported="false" />
+        <activity
             android:name=".MenuActivity"
-            android:exported="true">
-            <!-- android:screenOrientation="landscape" -->
-
+            android:exported="true"
+            android:screenOrientation="landscape">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".GameActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"
+            ></activity>
     </application>
 
 </manifest>

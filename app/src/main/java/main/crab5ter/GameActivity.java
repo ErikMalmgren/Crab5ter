@@ -81,17 +81,19 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         closeToHoles = new ArrayList<Hole>();
         walls = new ArrayList<Wall>();
         trampolines = new ArrayList<Trampoline>();
-        if(a_b_Testing().equals("a")) {
-            this.maze = new Maze().getHardMaze();
-        } else {
+        if(gameMode().equals("easy")) {
             this.maze = new Maze().getEasyMaze();
+        } else if(gameMode().equals("medium")) {
+            this.maze = new Maze().getMediumMaze();
+        } else if(gameMode().equals("hard")) {
+            this.maze = new Maze().getHardMaze();
         }
 
 
     }
 
-    public String a_b_Testing() {
-        return getIntent().getStringExtra("testing");
+    public String gameMode() {
+        return getIntent().getStringExtra("GameMode");
     }
 
     @Override
@@ -136,11 +138,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         matrix.setScale(scaleX, scaleY);
 
         // wall
-        if(a_b_Testing().equals("a")) {
-            wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.stone);
-        } else if(a_b_Testing().equals("b")) {
-            wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.hink2small);
-        }
+        wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.stone);
 
         // trampoline
         trampolineBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.trampoline2copy);
@@ -206,7 +204,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             if(Math.round(Math.sin(angle)) != 0)playerSpeedX = Math.abs(playerSpeedX) * Math.round(Math.sin(angle)) * 0.50f;
 
             // tester med vibration och ljud
-            if(a_b_Testing().equals("a")) {
+            if(gameMode().equals("easy")) {
                 if((playerRadius - distanceToWall) > 2) {
                     sounds.playCrashSound();
                     vibrator.vibrate(100); // bara vibrate vid hård träff
@@ -232,7 +230,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         }
 
         // a-b testning nära hål
-        if(a_b_Testing().equals("a")) {
+        if(gameMode().equals("easy")) {
             for(Hole hole : closeToHoles){
                 if(getDistance(hole.getX(),hole.getY(),playerX,playerY) < hole.getRadius()){
                     sounds.playCloseSound();

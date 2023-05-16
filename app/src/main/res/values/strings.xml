@@ -11,7 +11,7 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="player_ball">PlayerBall</string>
     <string name="title">Tilt-A-Crab</string>
-    <string name="start">Start</string>
+    <string name="start">PLAY</string>
     <string name="quit">Quit</string>
     <string name="pause">Pause</string>
 </resources>
