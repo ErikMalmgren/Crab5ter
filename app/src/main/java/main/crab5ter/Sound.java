@@ -8,7 +8,6 @@ public class Sound {
     private SoundPool soundPool;
     private int deathSound;
     private int winSound;
-    private int closeSound;
     private int crashSound;
     private Context context;
 
@@ -28,16 +27,12 @@ public class Sound {
         deathSound = soundPool.load(context, R.raw.death_sound, 1);
         winSound = soundPool.load(context, R.raw.win_sound, 1);
         crashSound = soundPool.load(context, R.raw.crash_sound, 1);
-        closeSound = soundPool.load(context, R.raw.close_hole, 1);
     }
     public void playDeathSound() {
-        soundPool.play(deathSound, 0.5f, 0.5f, 0, 0, 1.0f);
+        soundPool.play(deathSound, 1, 1, 0, 0, 1.0f);
     }
     public void playWinSound() {
-        soundPool.play(winSound, 0.5f, 0.5f, 0, 0, 1.0f);
-    }
-    public void playCloseSound() {
-        soundPool.play(closeSound, 0.5f, 0.5f, 0, 0, 1.0f);
+        soundPool.play(winSound, 1, 1, 0, 0, 1.0f);
     }
     public void playCrashSound() {
         soundPool.play(crashSound, 0.5f, 0.5f, 0, 0, 1.0f);

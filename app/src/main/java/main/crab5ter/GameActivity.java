@@ -35,7 +35,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private ArrayList<Wall> walls;
     private ArrayList<Hole> holes;
     private ArrayList<Trampoline> trampolines;
-    private ArrayList<Hole> closeToHoles;
     private GameThread thread;
     private float playerSpeedX, playerSpeedY;
     private float startX,startY; //start position for player.
@@ -43,7 +42,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private Bitmap bitmap;
     private Matrix matrix;
     private Bitmap wallBitmap;
-
     private Bitmap trampolineBitmap;
     private long lastUpdate;
     private Sound sounds;
@@ -78,7 +76,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         playerPaint = new Paint();
         playerPaint.setColor(Color.RED);
         holes = new ArrayList<Hole>();
-        closeToHoles = new ArrayList<Hole>();
         walls = new ArrayList<Wall>();
         trampolines = new ArrayList<Trampoline>();
         if(gameMode().equals("easy")) {
@@ -115,7 +112,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
                     walls.add(new Wall(posX, posY, mazeWidth, mazeHeight, new Paint(), Color.GREEN));
                 } else if (maze[i][j] == -1) { //-1 = hål
                     holes.add(new Hole(centerX, centerY, minDimension / 2, new Paint(), Color.BLACK));
-                    closeToHoles.add(new Hole(centerX, centerY, minDimension, new Paint(), Color.BLUE));
 
                 } else if (maze[i][j] == 2) {// 2 = startPosition.
                     playerRadius = minDimension / 2.5f;
@@ -204,15 +200,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             if(Math.round(Math.sin(angle)) != 0)playerSpeedX = Math.abs(playerSpeedX) * Math.round(Math.sin(angle)) * 0.50f;
 
             // tester med vibration och ljud
-            if(gameMode().equals("easy")) {
-                if((playerRadius - distanceToWall) > 2) {
-                    sounds.playCrashSound();
-                    vibrator.vibrate(100); // bara vibrate vid hård träff
-                }
-            } else {
-                vibrator.vibrate(100); // vibrate vid träff av vägg
+            if((playerRadius - distanceToWall) > 2) {
+                sounds.playCrashSound();
+                vibrator.vibrate(100); // bara vibrate vid hård träff
             }
-
         }
     }
 
@@ -226,22 +217,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
                 sounds.playDeathSound();
                 onDeath();
                 respawnPlayer();
-            }
-        }
-
-        // a-b testning nära hål
-        if(gameMode().equals("easy")) {
-            for(Hole hole : closeToHoles){
-                if(getDistance(hole.getX(),hole.getY(),playerX,playerY) < hole.getRadius()){
-                    sounds.playCloseSound();
-
-                }
-            }
-        } else {
-            for(Hole hole : closeToHoles){
-                if(getDistance(hole.getX(),hole.getY(),playerX,playerY) < hole.getRadius()){
-                    vibrator.vibrate(75);
-                }
             }
         }
         // win
