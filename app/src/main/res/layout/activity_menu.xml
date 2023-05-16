@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/background2ai_newcolor" />
+        app:srcCompat="@drawable/mainbackgroundtilt" />
 
     <Button
         android:id="@+id/btn_start"
