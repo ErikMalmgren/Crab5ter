@@ -74,7 +74,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
 
     private void init() {
         playerPaint = new Paint();
-        playerPaint.setColor(Color.RED);
+        playerPaint.setColor(Color.parseColor("#e06b12"));
         holes = new ArrayList<Hole>();
         walls = new ArrayList<Wall>();
         trampolines = new ArrayList<Trampoline>();
