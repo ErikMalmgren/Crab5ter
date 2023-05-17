@@ -244,7 +244,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         gameView.draw(canvas);
         canvas.drawBitmap(bitmap, matrix, null);
         Paint startPaint = new Paint();
-        startPaint.setColor(Color.BLUE);
+        startPaint.setColor(Color.parseColor("#51B2D6"));;
         Paint endPaint = new Paint();
         endPaint.setColor(Color.YELLOW);
         canvas.drawCircle(startX,startY, playerRadius, startPaint);
