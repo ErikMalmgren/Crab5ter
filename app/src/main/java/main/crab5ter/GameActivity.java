@@ -15,6 +15,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
@@ -45,6 +46,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private Bitmap trampolineBitmap;
     private long lastUpdate;
     private Sound sounds;
+    MediaPlayer mediaPlayer;
     private int[][] maze;
 
 
@@ -68,6 +70,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         sounds = new Sound(this);
+        mediaPlayer = MediaPlayer.create(this, R.raw.beach_ambience);
+        mediaPlayer.setVolume(0.1f, 0.1f);
+        mediaPlayer.start();
+        mediaPlayer.setLooping(true);
         init();
 
     }
@@ -149,6 +155,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         // stop the game thread
+        mediaPlayer.stop();
         boolean retry = true;
         thread.setRunning(false);
         while (retry) {
@@ -207,7 +214,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             float deltaX = oldSpeedX - playerSpeedX;
             float deltaY = oldSpeedY - playerSpeedY;
             float magnitude = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            System.out.println(magnitude);
 
             if(magnitude > 10 ) {
                 sounds.playCrashSound(magnitude/80);
