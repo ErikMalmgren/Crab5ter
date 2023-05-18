@@ -23,8 +23,8 @@
         android:layout_height="65dp"
         android:layout_marginBottom="32dp"
         android:fontFamily="sans-serif-black"
-        android:text="HOW TO PLAY"
         android:onClick="launchTutorial"
+        android:text="HOW TO PLAY"
         android:textSize="16sp"
         android:textStyle="bold"
         app:cornerRadius="15dp"
@@ -48,29 +48,31 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:visibility="invisible"
         android:id="@+id/howtoplay"
-        android:layout_width="652dp"
-        android:layout_height="431dp"
-        android:layout_marginTop="4dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="100dp"
+
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="100dp"
+        android:layout_marginBottom="40dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/howtoicons"
-
-        />
+        app:srcCompat="@drawable/howtoicons" />
 
     <Button
         android:id="@+id/close_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="40dp"
         android:onClick="hideTutorial"
         android:text="Close"
         android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="@id/howtoplay"
-        app:layout_constraintTop_toTopOf="@id/howtoplay" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,7 +13,7 @@ import android.widget.ImageView;
 public class MenuActivity extends AppCompatActivity {
 
     private ImageView imageView;
-    private Button closeButton;
+    private Button closeButton, startButton,howToButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +21,8 @@ public class MenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_menu);
         this.imageView = findViewById(R.id.howtoplay);
         this.closeButton = findViewById(R.id.close_button);
+        this.startButton  = findViewById(R.id.btn_start);
+        this.howToButton  = findViewById(R.id.how_to_play);
     }
 
     public void launchMainActivity(View v) {
@@ -30,13 +32,17 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     public void launchTutorial(View v) {
-        this.imageView.setVisibility(View.VISIBLE);
-        this.closeButton.setVisibility(View.VISIBLE);
+        imageView.setVisibility(View.VISIBLE);
+        closeButton.setVisibility(View.VISIBLE);
+        startButton.setVisibility(View.INVISIBLE);
+        howToButton.setVisibility(View.INVISIBLE);
     }
 
     public void hideTutorial(View view) {
-        this.imageView.setVisibility(View.INVISIBLE);
-        this.closeButton.setVisibility(View.INVISIBLE);
+        imageView.setVisibility(View.INVISIBLE);
+        closeButton.setVisibility(View.INVISIBLE);
+        startButton.setVisibility(View.VISIBLE);
+        howToButton.setVisibility(View.VISIBLE);
     }
 
 
