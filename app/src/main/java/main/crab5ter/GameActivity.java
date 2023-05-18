@@ -17,6 +17,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -293,8 +294,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
                         .setMessage("Vill du starta om spelet?")
                         .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                respawnPlayer();
-                                onResume();
+                                restart();
                             }
                         })
                         .setNegativeButton("Nej", new DialogInterface.OnClickListener() {
@@ -319,8 +319,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
                         .setMessage("Vill du spela igen?")
                         .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                respawnPlayer();
-                                onResume();
+                                restart();
                             }
                         })
                         .setNegativeButton("Nej", new DialogInterface.OnClickListener() {
@@ -332,6 +331,18 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
                         .show();
             }
         });
+    }
+
+    public void restart() {
+        onResume();
+        new CountDownTimer(10, 100) {
+            public void onFinish() {
+                respawnPlayer();
+            }
+
+            public void onTick(long millisUntilFinished) {
+            }
+        }.start();
     }
 
     @Override
@@ -381,8 +392,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         playerSpeedY = -50;
         playerX = 750;
         playerY = 30;
-
-
 
     }
 
