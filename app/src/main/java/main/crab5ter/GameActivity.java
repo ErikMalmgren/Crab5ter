@@ -36,7 +36,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private ArrayList<Hole> holes;
     private ArrayList<Trampoline> trampolines;
     private GameThread thread;
-    private float playerSpeedX, playerSpeedY;
+    private float playerSpeedX, playerSpeedY, playerSpeed;
     private float startX,startY; //start position for player.
     private float endX, endY; // goal position
     private Bitmap bitmap;
@@ -188,6 +188,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         double distanceToWall = getDistance(wall.clampX(playerX),wall.clampY(playerY), playerX,playerY);
         if( distanceToWall < playerRadius){
 
+            float oldSpeedY = playerSpeedY;
+            float oldSpeedX = playerSpeedX;
+
             //beräkna den vinkeln som spelaren kommer in med mot väggen.
             double angle = Math.atan2(playerX- wall.clampX(playerX),playerY-wall.clampY(playerY));
 
@@ -200,9 +203,15 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             if(Math.round(Math.sin(angle)) != 0)playerSpeedX = Math.abs(playerSpeedX) * Math.round(Math.sin(angle)) * 0.50f;
 
             // tester med vibration och ljud
-            if((playerRadius - distanceToWall) > 2) {
-                sounds.playCrashSound();
-                vibrator.vibrate(100); // bara vibrate vid hård träff
+
+            float deltaX = oldSpeedX - playerSpeedX;
+            float deltaY = oldSpeedY - playerSpeedY;
+            float magnitude = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            System.out.println(magnitude);
+
+            if(magnitude > 10 ) {
+                sounds.playCrashSound(magnitude/80);
+                vibrator.vibrate((long) (magnitude * 5)); // bara vibrate vid hård träff
             }
         }
     }
@@ -385,12 +394,12 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         playerX += playerSpeedX * deltaTime;
         playerY += playerSpeedY * deltaTime;
 
-        float speed = (float) Math.sqrt(Math.pow(playerSpeedX, 2) + Math.pow(playerSpeedY, 2));
+        playerSpeed = (float) Math.sqrt(Math.pow(playerSpeedX, 2) + Math.pow(playerSpeedY, 2));
         float maxSpeed = 20;
 
-        if (speed > maxSpeed) {
-            playerSpeedX = (playerSpeedX / speed) * maxSpeed;
-            playerSpeedY = (playerSpeedY / speed) * maxSpeed;
+        if (playerSpeed > maxSpeed) {
+            playerSpeedX = (playerSpeedX / playerSpeed) * maxSpeed;
+            playerSpeedY = (playerSpeedY / playerSpeed) * maxSpeed;
         }
     }
 

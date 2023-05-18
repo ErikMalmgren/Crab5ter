@@ -34,8 +34,8 @@ public class Sound {
     public void playWinSound() {
         soundPool.play(winSound, 1, 1, 0, 0, 1.0f);
     }
-    public void playCrashSound() {
-        soundPool.play(crashSound, 0.5f, 0.5f, 0, 0, 1.0f);
+    public void playCrashSound(float crashMagnitude) {
+        soundPool.play(crashSound, crashMagnitude, crashMagnitude, 1, 0, 1.0f);
     }
 
 }
