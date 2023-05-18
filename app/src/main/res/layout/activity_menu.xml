@@ -5,20 +5,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MenuActivity">
-
+    <!---
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/mainbackgroundtilt" />
 
+        -->
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintDimensionRatio="H,16:9"
+        app:srcCompat="@drawable/mainbackgroundtilt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+
+
     <Button
-        android:id="@+id/how_to_play"
+        android:id="@+id/howToPlayButton"
         android:layout_width="152dp"
         android:layout_height="65dp"
         android:layout_marginBottom="32dp"
@@ -33,7 +50,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/btn_start"
+        android:id="@+id/playButton"
         android:layout_width="152dp"
         android:layout_height="65dp"
         android:layout_marginBottom="92dp"
@@ -47,30 +64,34 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
+
+    <RelativeLayout
         android:visibility="invisible"
-        android:id="@+id/howtoplay"
-        android:layout_width="652dp"
-        android:layout_height="431dp"
+        android:id="@+id/howToPlayLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitCenter"
         android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="4dp"
+        android:background="@drawable/howtoicons"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/howtoicons"
+        app:layout_constraintTop_toTopOf="parent">
 
-        />
+        <Button
+            android:id="@+id/closeTutorialButton"
+            android:layout_width="45dp"
+            android:layout_height="28dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/cross"
+            android:onClick="hideTutorial" />
 
-    <Button
-        android:id="@+id/close_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="8dp"
-        android:onClick="hideTutorial"
-        android:text="Close"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="@id/howtoplay"
-        app:layout_constraintTop_toTopOf="@id/howtoplay" />
+    </RelativeLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

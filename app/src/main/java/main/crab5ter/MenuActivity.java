@@ -9,18 +9,23 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 public class MenuActivity extends AppCompatActivity {
 
-    private ImageView imageView;
-    private Button closeButton;
+
+    private RelativeLayout tutorial;
+    private Button playButton;
+    private Button howToPlayButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_menu);
-        this.imageView = findViewById(R.id.howtoplay);
-        this.closeButton = findViewById(R.id.close_button);
+        this.tutorial = findViewById(R.id.howToPlayLayout);
+        this.playButton = findViewById(R.id.playButton);
+        this.howToPlayButton = findViewById(R.id.howToPlayButton);
+
     }
 
     public void launchMainActivity(View v) {
@@ -30,13 +35,21 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     public void launchTutorial(View v) {
-        this.imageView.setVisibility(View.VISIBLE);
-        this.closeButton.setVisibility(View.VISIBLE);
+        this.tutorial.setVisibility(View.VISIBLE);
+        this.playButton.setVisibility(View.INVISIBLE);
+        this.playButton.setEnabled(false);
+        this.howToPlayButton.setVisibility(View.INVISIBLE);
+        this.howToPlayButton.setEnabled(false);
+
     }
 
     public void hideTutorial(View view) {
-        this.imageView.setVisibility(View.INVISIBLE);
-        this.closeButton.setVisibility(View.INVISIBLE);
+        this.tutorial.setVisibility(View.INVISIBLE);
+        this.playButton.setVisibility(View.VISIBLE);
+        this.playButton.setEnabled(true);
+        this.howToPlayButton.setVisibility(View.VISIBLE);
+        this.howToPlayButton.setEnabled(true);
+
     }
 
 
