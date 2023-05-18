@@ -143,7 +143,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.stone);
 
         // trampoline
-        trampolineBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.trampoline2copy);
+        trampolineBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.trampoline);
 
         respawnPlayer();
         // start the game thread
