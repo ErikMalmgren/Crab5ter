@@ -11,6 +11,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -64,8 +66,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         setContentView(R.layout.activity_game);
 
         gameView = findViewById(R.id.gameView);
+        gameView.setZOrderOnTop(true);
         surfaceHolder = gameView.getHolder();
         surfaceHolder.addCallback(this);
+        surfaceHolder.setFormat(PixelFormat.TRANSPARENT);
 
         // Set up sensor manager and accelerometer
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -133,13 +137,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
                 }
             }
         }
-
-        // background
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.background_small);
-        matrix = new Matrix();
-        float scaleX = (float) gameView.getWidth() / bitmap.getWidth();
-        float scaleY = (float) gameView.getHeight() / bitmap.getHeight();
-        matrix.setScale(scaleX, scaleY);
 
         // wall
         wallBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.stone);
@@ -268,7 +265,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
 
     public void draw(Canvas canvas) {
         gameView.draw(canvas);
-        canvas.drawBitmap(bitmap, matrix, null);
+        
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+
         Paint startPaint = new Paint();
         startPaint.setColor(Color.parseColor("#51B2D6"));;
         Paint endPaint = new Paint();
@@ -288,8 +287,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         for(Trampoline trampoline: trampolines) {
             Rect rect = new Rect((int) trampoline.left(), (int) trampoline.top(), (int) trampoline.right(), (int) trampoline.bottom());
             canvas.drawBitmap(trampolineBitmap, null, rect, null);
-
         }
+
         canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
     }
 

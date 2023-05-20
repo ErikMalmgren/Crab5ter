@@ -9,6 +9,12 @@
     tools:context=".GameActivity">
 
 
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/background_small" />
 
     <SurfaceView
         android:id="@+id/gameView"
