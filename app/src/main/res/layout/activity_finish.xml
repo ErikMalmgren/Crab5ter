@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00000000"
+    tools:context=".FinishActivity">
+
+    <TextView
+        android:id="@+id/msgText"
+        android:layout_width="569dp"
+        android:layout_height="540dp"
+        android:layout_marginEnd="48dp"
+        android:fontFamily="@font/bubblegum_sans"
+        android:rotation="90"
+        android:text="You Win"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display4"
+        android:textColor="#FF9800"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.497" />
+
+    <Button
+        android:id="@+id/playAgainButton"
+        android:layout_width="150dp"
+        android:layout_height="65dp"
+        android:layout_marginTop="31dp"
+        android:background="#BA802A"
+        android:fontFamily="sans-serif-black"
+        android:onClick="playAgain"
+        android:rotation="90"
+        android:text="Play Again"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.162"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/backToMenuButton" />
+
+    <Button
+        android:id="@+id/backToMenuButton"
+        android:layout_width="120dp"
+        android:layout_height="65dp"
+        android:background="#BA802A"
+        android:fontFamily="sans-serif-black"
+        android:onClick="backToMenu"
+        android:rotation="90"
+        android:text="Menu"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/playAgainButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.202"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

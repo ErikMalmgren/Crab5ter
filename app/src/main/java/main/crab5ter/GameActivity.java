@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -231,18 +232,27 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         for(Hole hole : holes){
             if(getDistance(hole.getX(),hole.getY(),playerX,playerY) < hole.getRadius()){
                 sounds.playDeathSound();
-                onDeath();
-                respawnPlayer();
+                onFinish("You Lose!");
             }
         }
         // win
         if (getDistance(endX, endY, playerX, playerY) < playerRadius){
             sounds.playWinSound();
-            onWin();
-            respawnPlayer();
+            onFinish("You Win!");
+
         }
         playerX += playerSpeedX;
         playerY += playerSpeedY;
+    }
+
+    public void onFinish(String string) {
+        thread.setRunning(false);
+        respawnPlayer();
+
+        Intent i = new Intent(this, FinishActivity.class);
+        i.putExtra("GameMode" , gameMode());
+        i.putExtra("showMsg", string);
+        startActivity(i);
     }
 
     private double getDistance(float x1,float y1, float x2, float y2){
@@ -281,68 +291,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
 
         }
         canvas.drawCircle(playerX, playerY, playerRadius, playerPaint);
-    }
-
-    public void onDeath() {
-        // https://pastebin.com/qpjpi80P
-        onPause();
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                new AlertDialog.Builder(GameActivity.this)
-                        .setTitle("Tyvärr, du dog")
-                        .setMessage("Vill du starta om spelet?")
-                        .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                restart();
-                            }
-                        })
-                        .setNegativeButton("Nej", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                thread.setRunning(false);
-                                finish();
-                            }
-                        })
-                        .show();
-            }
-        });
-    }
-
-    public void onWin() {
-        // https://pastebin.com/qpjpi80P
-        onPause();
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                new AlertDialog.Builder(GameActivity.this)
-                        .setTitle("Grattis, du vann!")
-                        .setMessage("Vill du spela igen?")
-                        .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                restart();
-                            }
-                        })
-                        .setNegativeButton("Nej", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                thread.setRunning(false);
-                                finish();
-                            }
-                        })
-                        .show();
-            }
-        });
-    }
-
-    public void restart() {
-        onResume();
-        new CountDownTimer(10, 100) {
-            public void onFinish() {
-                respawnPlayer();
-            }
-
-            public void onTick(long millisUntilFinished) {
-            }
-        }.start();
     }
 
     @Override

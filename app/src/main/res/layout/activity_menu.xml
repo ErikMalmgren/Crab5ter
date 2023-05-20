@@ -66,17 +66,16 @@
 
 
     <RelativeLayout
-        android:visibility="invisible"
         android:id="@+id/howToPlayLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleType="fitCenter"
         android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
         android:layout_marginEnd="4dp"
         android:background="@drawable/howtoicons"
+        android:scaleType="fitCenter"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -91,7 +90,6 @@
             android:onClick="hideTutorial" />
 
     </RelativeLayout>
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

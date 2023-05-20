@@ -22,4 +22,10 @@
     <style name="Theme.CRAB5TER.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.CRAB5TER.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="dialogStyle" parent="Theme.AppCompat.DayNight.Dialog">
+
+        <item name="android:windowIsTranslucent">true</item>
+        <item name ="android:windowBackground">#00000000</item>
+    </style>
 </resources>
