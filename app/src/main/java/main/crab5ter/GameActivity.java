@@ -297,6 +297,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         super.onPause();
         // Unregister listener for accelerometer sensor
         sensorManager.unregisterListener(this);
+        thread.setRunning(false);
     }
 
     @Override
