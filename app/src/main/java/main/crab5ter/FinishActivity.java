@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -18,6 +19,7 @@ public class FinishActivity extends Activity {
         setContentView(R.layout.activity_finish);
         TextView message = (TextView) findViewById(R.id.msgText);
         message.setText(getIntent().getStringExtra("showMsg"));
+        message.setShadowLayer(20f, 10f, 10f, Color.BLACK);
     }
 
     public void playAgain(View v){

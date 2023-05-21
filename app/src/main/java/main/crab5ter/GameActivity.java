@@ -26,6 +26,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import android.widget.TextView;
+
 import java.util.ArrayList;
 
 public class GameActivity extends Activity implements SurfaceHolder.Callback, SensorEventListener {
@@ -82,6 +84,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         mediaPlayer.start();
         mediaPlayer.setLooping(true);
         init();
+
 
     }
 
