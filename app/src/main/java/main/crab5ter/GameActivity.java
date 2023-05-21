@@ -279,7 +279,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         canvas.drawColor(0, PorterDuff.Mode.CLEAR);
 
         Paint startPaint = new Paint();
-        startPaint.setColor(Color.parseColor("#51B2D6"));;
+        startPaint.setColor(Color.parseColor("#51B2D6"));
         Paint endPaint = new Paint();
         endPaint.setColor(Color.YELLOW);
         canvas.drawCircle(startX,startY, playerRadius, startPaint);
