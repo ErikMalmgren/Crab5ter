@@ -37,6 +37,9 @@ public class Trampoline {
         return this.y + height;
     }
 
+    public float midX() { return this.left() + (this.width / 2); }
+    public float midY() { return this.top() + (this.height / 2); }
+
     public Paint getPaint(){
         return this.paint;
     }

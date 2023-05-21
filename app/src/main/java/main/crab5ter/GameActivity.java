@@ -44,6 +44,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
     private float playerSpeedX, playerSpeedY, playerSpeed;
     private float startX,startY; //start position for player.
     private float endX, endY; // goal position
+    private boolean playerOnTrampoline;
     private Bitmap bitmap;
     private Matrix matrix;
     private Bitmap wallBitmap;
@@ -97,7 +98,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         } else if(gameMode().equals("hard")) {
             this.maze = new Maze().getHardMaze();
         }
-
+        playerOnTrampoline = false;
 
     }
 
@@ -132,7 +133,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
                 } else if (maze[i][j] == 3) { // 3 = mål
                     endX = centerX;
                     endY = centerY;
-                } else if(maze[i][j] == 4) {
+                } else if(maze[i][j] == 4) { // 4 = trampolin
                     trampolines.add(new Trampoline(posX, posY, mazeWidth, mazeHeight, new Paint(),Color.TRANSPARENT));
                 }
             }
@@ -209,7 +210,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             if(Math.round(Math.sin(angle)) != 0)playerSpeedX = Math.abs(playerSpeedX) * Math.round(Math.sin(angle)) * 0.50f;
 
             // tester med vibration och ljud
-
             float deltaX = oldSpeedX - playerSpeedX;
             float deltaY = oldSpeedY - playerSpeedY;
             float magnitude = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -230,6 +230,16 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
             if(getDistance(hole.getX(),hole.getY(),playerX,playerY) < hole.getRadius()){
                 sounds.playDeathSound();
                 onFinish("You Lose!");
+            }
+        }
+
+        for (Trampoline trampoline : trampolines) {
+            float trampolineHeight = Math.abs(trampoline.top() - trampoline.bottom());
+            if (getDistance(trampoline.midX(), trampoline.midY(), playerX, playerY) < trampolineHeight) {
+                playerOnTrampoline = true;
+                break;
+            } else {
+                playerOnTrampoline = false;
             }
         }
         // win
@@ -320,27 +330,34 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         lastUpdate = now;
 
         // Kolla om mobilen skakas, och att bollen är på en trampolin
-        if((Math.abs(event.values[0]) > 20 || Math.abs(event.values[1]) > 20 || Math.abs(event.values[2]) > 20) && playerOnTrampoline()) {
+        if((Math.abs(event.values[0]) > 20 || Math.abs(event.values[1]) > 20 || Math.abs(event.values[2]) > 20) && playerOnTrampoline) {
             jump();
         }
 
 
     }
-
-    // kolla om spelaren är på en trampolin
-    private boolean playerOnTrampoline() {
-        if(playerY >25 && playerY < 40 && playerX > 595 && playerX < 620) {
-            return true;
-        }
-        return false;
-    }
     // hoppa med bollen, kanske att man bara kan hoppa mellan två statiska trampoliner?
     private void jump() {
         vibrator.vibrate(100);
         playerSpeedY = -50;
-        playerX = 750;
-        playerY = 30;
+        float newPlayerX = playerX;
+        float newPlayerY = playerY;
+        double dist = Double.MAX_VALUE;
 
+        // hitta den närmsta trampolinen som inte är den man är på
+        for (Trampoline trampoline : trampolines) {
+            float trampolineHeight = Math.abs(trampoline.top() - trampoline.bottom());
+            double distTrampoline = getDistance(trampoline.midX(), trampoline.midY(), playerX, playerY);
+            if (distTrampoline > (trampolineHeight) && distTrampoline < dist) {
+                newPlayerX = trampoline.midX();
+                newPlayerY = trampoline.midY();
+                dist = distTrampoline;
+            }
+        }
+
+        playerX = newPlayerX;
+        playerY = newPlayerY;
+        playerOnTrampoline = false;
     }
 
 
