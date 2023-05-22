@@ -354,8 +354,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Se
         // hitta den närmsta trampolinen som inte är den man är på
         for (Trampoline trampoline : trampolines) {
             float trampolineHeight = Math.abs(trampoline.top() - trampoline.bottom());
+            float trampolineWidth = Math.abs(trampoline.left() - trampoline.right());
             double distTrampoline = getDistance(trampoline.midX(), trampoline.midY(), playerX, playerY);
-            if (distTrampoline > (trampolineHeight) && distTrampoline < dist) {
+            if (distTrampoline > Math.max(trampolineWidth, trampolineHeight) && distTrampoline < dist) {
                 newPlayerX = trampoline.midX();
                 newPlayerY = trampoline.midY();
                 dist = distTrampoline;
